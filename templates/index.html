@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the text */
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* At the bottom of the tooltip */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .alert {
+            color: red;
+            font-weight: bold;
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="navbar">
+            Welcome to EmotionDetection
+        </div>
+    </nav>
+    <div class="container">
+        <p>Make sure the selected photo is at least 100x100</p>
+        <form action="/upload" method="post" enctype="multipart/form-data" id="upload-form">
+            <input type="file" name="file" id="file" class="inputfile" accept="image/*" onchange="updateFilePath()">
+            <label for="file">Choose Photo</label>
+            <input type="text" id="file-path" readonly>
+            <button type="submit" id="upload-button">Upload Photo</button>
+        </form>
+        <div class="alert" id="alert">In order for this action to work please choose a photo first!</div>
+        <div id="loading" style="display: none;">Processing...</div>
+        {% if emotion %}
+            <div class="result">
+                <img src="{{ url_for('static', filename='uploaded_image.jpg') }}" alt="Uploaded Photo" id="result-img">
+                <p>Emotie Detectata: {{ emotion }}</p>
+                <p>Confidence Score: {{ confidence }}
+                    <span class="tooltip">ⓘ
+                        <span class="tooltiptext">Confidence Score represents the model's certainty in its prediction. It is a value between 0 and 1.0, where 1.0 indicates maximum confidence.</span>
+                    </span>
+                </p>
+            </div>
+        {% endif %}
+    </div>
+    <script>
+        function updateFilePath() {
+            var fileInput = document.getElementById('file');
+            var filePath = document.getElementById('file-path');
+            filePath.value = fileInput.value.split('\\').pop();
+        }
+
+        document.getElementById('upload-form').onsubmit = function(event) {
+            var fileInput = document.getElementById('file');
+            var alertBox = document.getElementById('alert');
+            if (!fileInput.value) {
+                alertBox.style.display = 'block';
+                event.preventDefault();
+            } else {
+                alertBox.style.display = 'none';
+                document.getElementById('loading').style.display = 'block';
+            }
+        };
+    </script>
+</body>
+</html>
